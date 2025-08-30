@@ -1,0 +1,58 @@
+
+# clerk configuration (can include secrets)
+/.clerk/
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js build output
+.next/
+out/
+dist/
+
+# Production
+build/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# Testing
+coverage/
+*.lcov
+
+# IDEs/editors
+.vscode/
+.idea/
+*.swp
+
+# Misc
+*.tgz
+*.lock-wscript
+*.tsbuildinfo
+
+# Optional: package managers
+# Yarn v2+
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+
+
