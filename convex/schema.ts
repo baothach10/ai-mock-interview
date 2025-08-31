@@ -15,4 +15,11 @@ export default defineSchema({
     jobTitle: v.union(v.string(), v.null()),
     jobDescription: v.union(v.string(), v.null()),
   }),
+  FeedbackSessionTable: defineTable({
+    interviewId: v.id("InterviewSessionTable"),
+    userId: v.id("UserTable"),
+    feedback: v.string(),
+    suggestions: v.array(v.string()),
+    rating: v.number(),
+  }),
 });

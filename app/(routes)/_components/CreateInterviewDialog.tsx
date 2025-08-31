@@ -75,7 +75,7 @@ function CreateInterviewDialog() {
         jobTitle: formData.jobTitle,
       });
 
-      router.push('/interview/'+resp)
+      router.push('/interview/' + resp)
     } catch (error) {
       console.log(error);
     } finally {
@@ -103,7 +103,7 @@ function CreateInterviewDialog() {
                 <CvUpload setFiles={(file: File) => setFile(file)} />
               </TabsContent>
               <TabsContent value="job-description">
-                <JobDescription onHandleInputChange={onHandleInputChange}  />
+                <JobDescription onHandleInputChange={onHandleInputChange} />
               </TabsContent>
             </Tabs>
           </DialogDescription>

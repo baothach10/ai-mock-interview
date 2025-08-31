@@ -21,7 +21,12 @@ import { AvatarVideo } from "./AvatarVideo";
 import { MessageHistory } from "./MessageHistory";
 import { useVoiceChat } from "@/hooks/useVoiceChat";
 import { InterviewData } from "@/types";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useUserDetail } from "@/app/Provider";
+import { useFeedback } from "@/context/FeedbackContext";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
+import { useMutation } from "convex/react";
 
 const DEFAULT_CONFIG: StartAvatarRequest = {
   quality: AvatarQuality.Low,
@@ -50,13 +55,113 @@ function InteractiveAvatar({
 
   const [config, setConfig] = useState<StartAvatarRequest>(DEFAULT_CONFIG);
 
+  const params = useParams()
+
   const mediaStream = useRef<HTMLVideoElement>(null);
 
   const router = useRouter();
 
-  const handleClose = () => {
-    router.back();
+  const conversationData = useRef<string[]>([])
+
+  const userMessage = useRef<string>('')
+
+  const agentMessage = useRef<string>('');
+
+  const isStartedCall = useRef<boolean>(false)
+
+
+  const { setFeedback } = useFeedback()
+  const { userDetail } = useUserDetail();
+  const saveFeedback = useMutation(
+    api.feedbacks.SaveFeedback
+  );
+
+  const addContentToUserMessage = (content: string) => {
+    userMessage.current += (userMessage.current ? " " : "") + content;
   };
+
+  const addContentToAgentMessage = (content: string) => {
+    agentMessage.current += (agentMessage.current ? " " : "") + content;
+  };
+
+  const clearUserMessage = () => {
+    userMessage.current = "";
+  };
+
+  const clearAgentMessage = () => {
+    agentMessage.current = "";
+  };
+
+  const clearAllMessages = () => {
+    userMessage.current = "";
+    agentMessage.current = "";
+  };
+
+  const addUserMessage = (content: string) => {
+    conversationData.current.push(`Interviewee: ${content}`);
+  };
+
+  const addAgentMessage = (content: string) => {
+    conversationData.current.push(`Interviewer: ${content}`);
+  };
+
+  const clearConversation = () => {
+    conversationData.current = [];
+  };
+
+  const handleClose = () => {
+    router.replace('/interview/' + params.interviewId)
+  };
+
+
+  const handleCloseCall = async () => {
+    await stopAvatar();
+    if (conversationData.current.length > 0) {
+      // Get the feedbacks
+      const feedbackData = await fetchFeedback(conversationData.current);
+
+      // Save this data to context
+      setFeedback(feedbackData)
+
+      const interviewId =
+        params.interviewId && typeof params.interviewId === "string"
+          ? (params.interviewId as Id<"InterviewSessionTable">)
+          : (Array.isArray(params.interviewId) ? (params.interviewId[0] as Id<"InterviewSessionTable">) : undefined);
+
+      if (!interviewId) {
+        console.error("Interview ID is missing or invalid.");
+        return;
+      }
+
+      saveFeedback({
+        feedback: feedbackData.feedback,
+        interviewId,
+        rating: feedbackData.rating,
+        suggestions: feedbackData.suggestions,
+        userId: userDetail._id
+      })
+    }
+    router.replace(`/interview/${params.interviewId}/feedback`);
+  };
+
+  async function fetchFeedback(conversationData: string[]) {
+    try {
+      const bodyData = JSON.stringify({
+        conversation: conversationData
+      });
+      const response = await fetch("/api/generate-feedback", {
+        method: "POST",
+        body: bodyData,
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching feedback:", error);
+      throw error;
+    }
+  }
+
 
   async function fetchAccessToken() {
     try {
@@ -108,6 +213,8 @@ function InteractiveAvatar({
     }
   }
 
+
+
   const startSessionV2 = useMemoizedFn(async (isVoiceChat: boolean) => {
     try {
       const newToken = await fetchAccessToken();
@@ -130,6 +237,7 @@ function InteractiveAvatar({
       });
       avatar.on(StreamingEvents.STREAM_DISCONNECTED, () => {
         console.log("Stream disconnected");
+
       });
       avatar.on(StreamingEvents.STREAM_READY, (event) => {
         console.log(">>>>> Stream ready:", event.detail);
@@ -142,15 +250,21 @@ function InteractiveAvatar({
       });
       avatar.on(StreamingEvents.USER_END_MESSAGE, (event) => {
         console.log(">>>>> User end message:", event);
+        addUserMessage(userMessage.current)
+        clearUserMessage()
       });
       avatar.on(StreamingEvents.USER_TALKING_MESSAGE, (event) => {
         console.log(">>>>> User talking message:", event);
+        addContentToUserMessage(event.detail.message)
       });
       avatar.on(StreamingEvents.AVATAR_TALKING_MESSAGE, (event) => {
         console.log(">>>>> Avatar talking message:", event);
+        addContentToAgentMessage(event.detail.message)
       });
       avatar.on(StreamingEvents.AVATAR_END_MESSAGE, (event) => {
         console.log(">>>>> Avatar end message:", event);
+        addAgentMessage(agentMessage.current)
+        clearAgentMessage()
       });
 
       await startAvatar(customConfig);
@@ -186,17 +300,23 @@ function InteractiveAvatar({
           <CloseIcon />
         </Button>
         <div className="relative h-full w-full aspect-video overflow-hidden flex flex-col items-center justify-center">
-          <AvatarVideo ref={mediaStream} />
+          <AvatarVideo handleCloseAvatar={handleCloseCall} ref={mediaStream} />
         </div>
         <div className="relative flex w-full flex-col gap-3 items-center justify-center p-4 border-t border-zinc-700">
           {sessionState === StreamingAvatarSessionState.CONNECTED ? (
             <AvatarControls />
           ) : sessionState === StreamingAvatarSessionState.INACTIVE ? (
-              <div className=" flex flex-row gap-4">
-              <Button onClick={() => startSessionV2(true)}>
+            <div className=" flex flex-row gap-4">
+              <Button onClick={() => {
+                isStartedCall.current = true
+                startSessionV2(true)
+              }}>
                 Start Voice Chat
               </Button>
-              <Button onClick={() => startSessionV2(false)}>
+              <Button onClick={() => {
+                isStartedCall.current = true
+                startSessionV2(false)
+              }}>
                 Start Text Chat
               </Button>
             </div>
@@ -207,6 +327,17 @@ function InteractiveAvatar({
       </div>
       {sessionState === StreamingAvatarSessionState.CONNECTED && (
         <MessageHistory />
+      )}
+      {/* Fullscreen Overlay */}
+      {isStartedCall.current && sessionState !== StreamingAvatarSessionState.CONNECTED && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/70 backdrop-blur-lg">
+          <LoadingIcon size={48} className="text-white" />
+          <p className="mt-4 text-white text-lg font-medium">
+            {sessionState === StreamingAvatarSessionState.INACTIVE
+              ? "Generating feedbacks..."
+              : "Connecting..."}
+          </p>
+        </div>
       )}
     </div>
   );
