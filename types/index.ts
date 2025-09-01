@@ -10,3 +10,13 @@ export type InterviewResponse = {
   question: string;
   answer: string;
 };
+
+export type FeedbackData = {
+  _id: string;
+  _creationTime: number;
+  suggestions: string[];
+  userId: string;
+  interviewId: string;
+  feedback: string;
+  rating: number;
+};

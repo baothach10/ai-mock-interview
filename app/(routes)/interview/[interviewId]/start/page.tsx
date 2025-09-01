@@ -21,7 +21,7 @@ function StartInterview() {
 
   const GetInterviewQuestions = async () => {
     const result = await convex.query(api.interviews.GetInterviewQuestions, {
-      interviewRecordId: interviewId,
+      interviewRecordId: interviewId as string,
     });
     setInterviewData(result as InterviewData);
   };

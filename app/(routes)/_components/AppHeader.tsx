@@ -12,8 +12,10 @@ const MenuOption = [
 function AppHeader() {
   return (
     <nav className="flex w-full items-center justify-between border-t border-b border-neutral-200 px-4 py-4 dark:border-neutral-800">
-      <div className="flex items-center gap-2">
-        <Image src="/logo.svg" alt="Logo" width={32} height={32} />
+      <div className="flex items-center">
+        <Link href={'/'}>
+          <Image src="/logo.svg" alt="Logo" width={32} height={32} />
+        </Link>
       </div>
       <div>
         <ul className="flex gap-5">

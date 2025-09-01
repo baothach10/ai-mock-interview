@@ -122,7 +122,14 @@ export const FileUpload = ({
                       layout
                     >
                       modified{" "}
-                      {new Date(file.lastModified).toLocaleDateString()}
+                      {new Date(file.lastModified).toLocaleDateString(undefined, {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false
+                      })}
                     </motion.p>
                   </div>
                 </motion.div>

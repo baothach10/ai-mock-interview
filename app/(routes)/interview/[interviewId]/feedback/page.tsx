@@ -1,12 +1,28 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useFeedback } from "@/context/FeedbackContext";
 import Link from "next/link";
+import { useConvex, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useEffect } from "react";
 
 export default function FeedbackPage() {
     const { feedback } = useFeedback();
     const router = useRouter();
+    const params = useParams()
+
+    const updateStatus = useMutation(api.interviews.UpdateInterviewField)
+
+    useEffect(() => {
+        if (feedback) {
+            updateStatus({
+                interviewId: params.interviewId as string,
+                field: 'status',
+                value: 'complete'
+            })
+        }
+    }, [feedback])
 
     if (!feedback) {
         return (

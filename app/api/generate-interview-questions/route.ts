@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import ImageKit from "imagekit";
 import axios from "axios";
 import { aj } from "@/utils/arcjet";
+import { auth, currentUser } from "@clerk/nextjs/server";
 
 const imagekit = new ImageKit({
   publicKey: process.env.IMAGEKIT_URL_PUBLIC_KEY!,
@@ -10,15 +11,21 @@ const imagekit = new ImageKit({
 });
 export async function POST(request: NextRequest) {
   try {
+    const user = await currentUser();
     const formData = await request.formData();
     const file = formData.get("file") as File;
     const jobTitle = formData.get("jobTitle") as string;
     const jobDescription = formData.get("jobDescription") as string;
 
-    const decision = await aj.protect(request, { requested: 5 }); // Deduct 5 tokens from the bucket
+    const { has } = await auth();
+    const isSubscribedUser = has({ plan: "pro" });
 
-    if (decision.reason.isRateLimit()) {
-      console.log("Arcjet decision", decision);
+    const decision = await aj.protect(request, {
+      userId: user?.primaryEmailAddress?.emailAddress ?? "",
+      requested: 1,
+    }); // Deduct 1 token from the bucket
+
+    if (decision.reason.isRateLimit() && !isSubscribedUser) {
       return NextResponse.json(
         {
           error: "Too Many Requests, please try again after 24 hours!",
@@ -48,8 +55,6 @@ export async function POST(request: NextRequest) {
           pdfUrl: uploadPdf.url,
         }
       );
-
-      console.log(result.data);
 
       const jsonResult =
         typeof result.data === "string" ? JSON.parse(result.data) : result.data;

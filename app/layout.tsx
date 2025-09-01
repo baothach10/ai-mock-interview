@@ -28,9 +28,9 @@ export default function RootLayout({
           <FeedbackProvider>
             <ConvexClientProvider>
               {children}
-              <Toaster />
             </ConvexClientProvider>
           </FeedbackProvider>
+          <Toaster />
         </body>
       </html>
     </ClerkProvider>

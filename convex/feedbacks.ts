@@ -20,12 +20,13 @@ export const SaveFeedback = mutation({
   },
 });
 
-export const GetFeedbackByInterview = query({
-  args: { interviewId: v.id("InterviewSessionTable") },
+export const GetFeedbacksByInterview = query({
+  args: { interviewId: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const result = await ctx.db
       .query("FeedbackSessionTable")
-      .withIndex("by_interviewId", (q) => q.eq("interviewId", args.interviewId))
+      .filter((q) => q.eq(q.field("interviewId"), args.interviewId))
       .collect();
+    return result;
   },
 });

@@ -18,7 +18,7 @@ function JobDescription({ onHandleInputChange }: any) {
       <div className="mt-6">
         <label>Job Description</label>
         <Textarea
-          maxLength={1500}
+          maxLength={3000}
           placeholder="Enter or paste Job description"
           className="min-h-[200px]"
           onChange={(event) =>

@@ -1,10 +1,15 @@
 import { aj } from "@/utils/arcjet";
 import { isSpoofedBot } from "@arcjet/inspect";
+import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
+
 export async function GET(req: Request) {
-  const decision = await aj.protect(req, { requested: 5 }); // Deduct 5 tokens from the bucket
-  console.log("Arcjet decision", decision);
+  const user = await currentUser()
+  const decision = await aj.protect(req, {
+    userId: user?.primaryEmailAddress?.emailAddress ?? "",
+    requested: 1,
+  }); // Deduct 1 token from the bucket
 
   if (decision.isDenied()) {
     if (decision.reason.isRateLimit()) {

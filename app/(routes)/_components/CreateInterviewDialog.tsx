@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CvUpload from "./CvUpload";
 import JobDescription from "./JobDescription";
 import { DialogClose } from "@radix-ui/react-dialog";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { Loader2Icon } from "lucide-react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -50,22 +50,8 @@ function CreateInterviewDialog() {
         "api/generate-interview-questions",
         formData_
       );
+      toast.info('Successfully created the interview!')
 
-      if (res.data.status == 429) {
-        toast.warning("Too Many Requests, please try again after 24 hours!");
-        setLoading(false);
-        return;
-      }
-
-      console.log("Final: ", {
-        questions: res.data.questions,
-        resumeUrl: res.data.resumeUrl,
-        uid: userDetail._id,
-        jobDescription: formData.jobDescription,
-        jobTitle: formData.jobTitle,
-      });
-
-      // router.push("/interview/" + userDetail._id);
       // Save to db
       const resp = await saveInterviewQuestion({
         questions: res.data.questions,
@@ -77,7 +63,11 @@ function CreateInterviewDialog() {
 
       router.push('/interview/' + resp)
     } catch (error) {
-      console.log(error);
+      if ((error as AxiosError).status == 429) {
+        toast.warning("Too Many Requests, please try again after 24 hours!");
+        setLoading(false);
+        return;
+      }
     } finally {
       setLoading(false);
     }
@@ -88,7 +78,7 @@ function CreateInterviewDialog() {
       <DialogTrigger>
         <Button>+ Create Interview</Button>
       </DialogTrigger>
-      <DialogContent className="min-w-3xl">
+      <DialogContent className="min-w-6xl">
         <DialogHeader>
           <DialogTitle>Please submit following details.</DialogTitle>
           <DialogDescription>

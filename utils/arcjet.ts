@@ -22,10 +22,10 @@ export const aj = arcjet({
       mode: "LIVE",
       // Tracked by IP address by default, but this can be customized
       // See https://docs.arcjet.com/fingerprints
-      //characteristics: ["ip.src"],
-      refillRate: 5, // Refill 5 tokens per interval
+      characteristics: ["userId"],
+      refillRate: 2, // Refill 5 tokens per interval
       interval: 86400, // Refill every 24 hours
-      capacity: 10, // Bucket capacity of 10 tokens
+      capacity: 2, // Bucket capacity of 10 tokens
     }),
   ],
 });
