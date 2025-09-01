@@ -39,7 +39,7 @@ The **AI Mock Interview Project** is a full-stack web application designed to he
 |-------|------------|
 | **Frontend** | Next.js, Shadcn UI, Aceternity UI, GSAP |
 | **Backend & DB** | Convex |
-| **AI & NLP** | Google Gemini, Python, Pipedream |
+| **LLM & RAG** | Google Gemini, Python, Pipedream |
 | **Authentication** | Clerk |
 | **Media & Video** | ImageKit, HeyGen |
 | **Security & Rate Limit** | ArcJet |
