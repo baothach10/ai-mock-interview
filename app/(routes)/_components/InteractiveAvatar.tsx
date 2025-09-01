@@ -141,7 +141,7 @@ function InteractiveAvatar({
         userId: userDetail._id
       })
     }
-    router.replace(`/interview/${params.interviewId}/feedback`);
+    router.replace(`/interview/${params.interviewId}/detailed`);
   };
 
   async function fetchFeedback(conversationData: string[]) {
@@ -307,13 +307,13 @@ function InteractiveAvatar({
             <AvatarControls />
           ) : sessionState === StreamingAvatarSessionState.INACTIVE ? (
             <div className=" flex flex-row gap-4">
-              <Button onClick={() => {
+              <Button className="cursor-pointer" onClick={() => {
                 isStartedCall.current = true
                 startSessionV2(true)
               }}>
                 Start Voice Chat
               </Button>
-              <Button onClick={() => {
+              <Button className="cursor-pointer" onClick={() => {
                 isStartedCall.current = true
                 startSessionV2(false)
               }}>

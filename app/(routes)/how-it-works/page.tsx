@@ -1,13 +1,31 @@
-import React from 'react'
+"use client";
+
+import React, { useEffect, useRef } from 'react';
+import { useGSAP } from '@gsap/react';
 import Link from "next/link";
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import { gsap } from 'gsap';
 
 function InstructionPage() {
-    return (
+    const containerRef = useRef<HTMLDivElement>(null);
 
+    useGSAP(() => {
+        if (containerRef.current) {
+            const sections = containerRef.current.querySelectorAll('section, header, .back-button');
+            gsap.from(sections, {
+                opacity: 0,
+                y: 50,
+                duration: 0.8,
+                stagger: 0.2,
+                ease: "power3.out"
+            });
+        }
+    }, []);
+
+    return (
         <div className="min-h-screen bg-gray-100 text-gray-900 p-6">
-            <div className="max-w-4xl mx-auto flex flex-col gap-8">
+            <div ref={containerRef} className="max-w-4xl mx-auto flex flex-col gap-8">
 
                 {/* Page Header */}
                 <header className="text-center">
@@ -57,7 +75,7 @@ function InstructionPage() {
                 </section>
 
                 {/* Back Button */}
-                <div className="flex justify-start mt-4">
+                <div className="flex justify-start back-button mt-4">
                     <Link href="/dashboard">
                         <Button variant={'outline'} className="self-start mt-4">
                             {" "} <ArrowLeft /> Back to Dashboard
@@ -70,4 +88,4 @@ function InstructionPage() {
     )
 }
 
-export default InstructionPage
+export default InstructionPage;

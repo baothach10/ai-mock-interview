@@ -6,12 +6,33 @@ import { ArrowRight, Send } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import React from "react";
+import React, { useRef } from "react";
+import { gsap } from 'gsap';
+import { useGSAP } from "@gsap/react";
 
 function Interview() {
   const { interviewId } = useParams();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // GSAP animation
+  useGSAP(() => {
+    if (containerRef.current) {
+      const children = Array.from(containerRef.current.children);
+      return gsap.from(children, {
+        opacity: 0,
+        y: 100,
+        duration: 0.8,
+        stagger: 0.5,
+        ease: "power3.out",
+      });
+    }
+  }, [containerRef]);
+
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center mt-10">
+    <div
+      ref={containerRef}
+      className="relative w-full h-full flex flex-col items-center justify-center mt-10"
+    >
       <div className="relative w-full h-full flex flex-col items-center justify-center">
         <Image
           src="/interview.svg"
@@ -30,13 +51,13 @@ function Interview() {
           </p>
           <Link href={`/interview/${interviewId}/start`}>
             <Button>
-              Start Interview <ArrowRight />{" "}
+              Start Interview <ArrowRight />
             </Button>
           </Link>
           <hr />
           <div className="p-6 bg-gray-50 rounded-2xl">
             <h2 className="font-semibold text-2xl">
-              Want to sent interview to link to someone?
+              Want to send interview link to someone?
             </h2>
             <div className="flex gap-5 w-full items-center max-w-xl mt-2">
               <Input placeholder="Enter email address" className="w-full" />
