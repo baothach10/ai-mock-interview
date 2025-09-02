@@ -15,7 +15,7 @@
 
 The **AI Mock Interview Project** is a full-stack web application designed to help users practice interviews using AI-generated questions, example answers, and interactive feedback. It also provides resume analysis and AI avatars for a realistic interview experience.
 
-**Live Demo:** *(Insert your deployed link here)*
+**Live Demo:** *(https://youtu.be/HtzbjTdvFsw)*
 
 ---
 
