@@ -115,12 +115,6 @@ Contributions are welcome! Please open an issue or submit a pull request.
 
 ---
 
-## License
-
-MIT License © \[Ngo Tran Bao Thach]
-
----
-
 ## Contact 📧
 
 For inquiries, contact **\[Ngo Tran Bao Thach]** at \[[baothach10@gmail.com](mailto:baothach10@gmail.com)].
